@@ -1,3 +1,5 @@
+# chrony.conf - Managed by Puppet.
+
 # Use public servers from the pool.ntp.org project.
 # Please consider joining the pool (http://www.pool.ntp.org/join.html).
 <% if @servers.is_a?(Hash) then @servers.keys.sort.each do |server| -%>
@@ -6,48 +8,37 @@ server <%= server %> <%= @servers[server].join(' ') %>
 server <%= server %> iburst
 <% end end -%>
 
-# Ignore stratum in source selection.
-stratumweight 0
-
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
+
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+makestep 1.0 3
 
 # Enable kernel RTC synchronization.
 rtcsync
 
-# In first three updates step the system clock instead of slew
-# if the adjustment is larger than 10 seconds.
-makestep 10 3
+# Enable hardware timestamping on all interfaces that support it.
+#hwtimestamp *
 
-# Allow client access from local network.
-#allow 192.168/16
+# Increase the minimum number of selectable sources required to adjust
+# the system clock.
+#minsources 2
+
+# Allow NTP client access from local network.
+#allow 192.168.0.0/16
 <% Array(@queryhosts).each do |allowed| -%>
 allow <%= allowed %>
 <% end -%>
 
-# Listen for commands only on localhost.
-bindcmdaddress 127.0.0.1
-bindcmdaddress ::1
-
-# http://chrony.tuxfamily.org/manual.html#port-directive
-port <%= @port %>
-
 # Serve time even if not synchronized to any NTP server.
-local stratum 10
+# local stratum 10
 
+# Specify file containing keys for NTP authentication.
 keyfile /etc/chrony.keys
 
-# Specify the key used as password for chronyc.
-commandkey <%= @commandkey %>
-
-# Generate command key if missing.
-generatecommandkey
-
-# Disable logging of client accesses.
-noclientlog
-
-# Send a message to syslog if a clock adjustment is larger than 0.5 seconds.
-logchange 0.5
-
+# Specify directory for log files.
 logdir /var/log/chrony
-#log measurements statistics tracking
+
+# Select which information is logged.
+log measurements statistics tracking
