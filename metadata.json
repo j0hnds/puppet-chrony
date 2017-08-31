@@ -1,6 +1,6 @@
 {
   "name": "j0hnds-chrony",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "j0hnds",
   "summary": "Manage chrony daemon on Linux",
   "license": "Apache-2.0",
